@@ -1,0 +1,253 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dew point ventilation controller</title>
+<meta name="author" content="Daniel Müllner">
+<meta name="keywords" content="dew point, dehumidifier, ventilation, Raspberry Pi, Taupunkt, Lüftung, Steuerung, entfeuchten, Daniel Müllner">
+<link rel="stylesheet" type="text/css" href="http://danifold.net/formate.css">
+<link rel="stylesheet" href="http://danifold.net/Pikaday/css/pikaday.css">
+<link rel="stylesheet" href="http://danifold.net/Pikaday/css/triangle.css">
+<link rel="shortcut icon" href="d.png" type="image/png">
+</head>
+<body>
+<div id="main">
+<table id="header"><tr><td id="daniel">Daniel Müllner</td>
+<td class="noprint right"><a href="http://danifold.net/index.html" class="homepagelink">Main page</a> » <a href="http://danifold.net/fancontrol.html" class="homepagelink">Ventilation controller</a></td></tr></table>
+<h1>Dew point ventilation controller: data</h1>
+<h2>Live data</h2>
+<table class="fancontrol">
+  <tr class="header">
+    <th colspan="3">
+      <span id="date">N/A</span><span style="float:right" id="time">N/A</span>
+    </th>
+  </tr>
+  <tr class="header hr">
+    <th>
+    </th>
+    <th>
+      Indoors
+    </th>
+    <th class="c">
+      Outdoors
+    </th>
+  </tr>
+  <tr class="bg">
+    <td>
+      Relative humidity in %
+    </td>
+    <td class="c" id="rH1">N/A</td>
+    <td class="c" id="rH2">N/A</td>
+  </tr>
+  <tr>
+    <td>
+      Temperature in °C
+    </td>
+    <td class="c" id="T1">N/A</td>
+    <td class="c" id="T2">N/A</td>
+  </tr>
+  <tr class="bg">
+    <td>
+      Dew point in °C
+    </td>
+    <td class="c" id="tau1">N/A</td>
+    <td class="c" id="tau2">N/A</td>
+  </tr>
+  <tr>
+    <td colspan="3" id="fanstate">N/A</td>
+  </tr>
+  <tr class="bg hr">
+    <td colspan="3" id="status">N/A</td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      IP Ethernet&nbsp;<span style="float:right" id="IPETH">N/A</span>
+    </td>
+  </tr>
+  <tr class="bg">
+    <td colspan="3">
+      IP WLAN&nbsp;<span style="float:right" id="IPWLAN">N/A</span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      IP WAN&nbsp;<span style="float:right" id="IPWAN">N/A</span>
+    </td>
+  </tr>
+  <tr class="bg">
+    <td colspan="3">
+      OS uptime&nbsp;<span style="float:right" id="OSuptime">N/A</span>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      Controller uptime&nbsp;<span style="float:right" id="uptime">N/A</span>
+    </td>
+  </tr>
+  <tr class="bg">
+    <td colspan="3">
+      Last DCF77 signal&nbsp;<span style="float:right" id="DCF77">N/A</span>
+    </td>
+  </tr>
+</table>
+<h2>Historical data</h2>
+See below: <button type="button" onclick="onGraphButton()" id="graphbutton">Hide graphs</button>
+<div class="noprint">
+<hr>
+<p class="backlink">
+<a href="http://danifold.net/index.html" class="homepagelink">Main page</a> » <a href="http://danifold.net/fancontrol.html" class="homepagelink">Ventilation controller</a>
+</p>
+</div>
+</div>
+<div id="mainwide">
+<div style="float:right"><a href="javascript:leaveOverlay()">Hide ☒</a></div>
+Pick a date:<span style="display:inline-block; width:1em;"></span><a href="javascript:prevDay()">◀</a> <input type="text" id="datepicker"> <a href="javascript:nextDay()">▶</a><br>
+<div style="margin-top:1.2ex"></div>
+<div style="text-align:center; width:1490px; line-height:675px; position:absolute;"><span style="font-size:26pt; background:#800; color:white; font-weight:bold; padding:1ex 1em;">Image not available</span></div>
+<div style="width:1490px; height:675px;">
+<img src="" alt="Temperature/dew point curves" id="graph" style="color:white; font-size:0pt; position:relative; z-index:1; height:675px; width:1490px;">
+</div>
+<script src="http://danifold.net/Pikaday/pikaday.js" type="text/javascript"></script>
+<script type="text/javascript">
+var pickerDefault = new Pikaday(
+{
+  field: document.getElementById('datepicker'),
+  theme: 'triangle-theme',
+  minDate: new Date(2016,3,10),
+  defaultDate: new Date(),
+  maxDate: new Date(),
+  setDefaultDate: true,
+  onSelect: loadGraph
+});
+
+var showGraphs = 1;
+
+function pad(num, size) {
+  var s = "00" + num;
+  return s.substr(s.length-size);
+}
+
+var setIntervalID = null;
+
+function generateSVGName(date) {
+  return "http://danifold.net/fancontrol/graphs/fancontrol_"
+    + date.getFullYear() + "-" + pad(date.getMonth() + 1, 2) + "-" + pad(date.getDate(), 2) + ".svg";
+}
+
+function loadGraph() {
+  var date = pickerDefault.getDate();
+  var today = new Date();
+  if(date.toDateString()==today.toDateString())
+  {
+    document.getElementById('graph').src = generateSVGName(date) + "?" + today.getTime();
+    if(setIntervalID == null)
+    {
+      setIntervalID = setInterval(loadGraph, 1000*60);
+    }
+  }
+  else
+  {
+    document.getElementById('graph').src = generateSVGName(date);
+    if(setIntervalID != null)
+    {
+      clearInterval(setIntervalID);
+      setIntervalID = null;
+    }
+  }
+}
+
+function onGraphButton() {
+  if(showGraphs == 0)
+  {
+    document.getElementById('mainwide').style.display = "block";
+    document.getElementById('graphbutton').innerHTML = "Hide Graphs";
+    document.getElementById("mainwide").scrollIntoView(true)
+    showGraphs = 1;
+  }
+  else
+  {
+    leaveOverlay();
+  }
+}
+
+function leaveOverlay() {
+  document.getElementById('mainwide').style.display = "none";
+  document.getElementById('graphbutton').innerHTML = "Show Graphs";
+  showGraphs = 0;
+}
+
+function prevDay() {
+  var date = pickerDefault.getDate();
+  if(date == null)
+  {
+    date = new Date();
+  }
+  date.setDate(date.getDate() - 1);
+  pickerDefault.setDate(date);
+}
+
+pickerDefault.setDate(pickerDefault.getDate());
+
+function nextDay() {
+  var date = pickerDefault.getDate();
+  if(date == null)
+  {
+    date = new Date();
+  }
+  else
+  {
+    date.setDate(date.getDate() + 1);
+  }
+  pickerDefault.setDate(date);
+}
+
+var request = new XMLHttpRequest();
+
+function onData(event)
+{
+  if (request.status >= 200 && request.status < 300)
+  {
+    var data = request.responseText.split('\n');
+    document.getElementById('date').innerHTML = data[0];
+    document.getElementById('time').innerHTML = data[1];
+    document.getElementById('rH1').style = data[2];
+    document.getElementById('rH1').innerHTML = data[3];
+    document.getElementById('rH2').style = data[4];
+    document.getElementById('rH2').innerHTML = data[5];
+    document.getElementById('T1').style = data[6];
+    document.getElementById('T1').innerHTML = data[7];
+    document.getElementById('T2').style = data[8];
+    document.getElementById('T2').innerHTML = data[9];
+    document.getElementById('tau1').style = data[10];
+    document.getElementById('tau1').innerHTML = data[11];
+    document.getElementById('tau2').style = data[12];
+    document.getElementById('tau2').innerHTML = data[13];
+    document.getElementById('fanstate').style = data[14];
+    document.getElementById('fanstate').innerHTML = data[15];
+    document.getElementById('status').style = data[16];
+    document.getElementById('status').innerHTML = data[17];
+    document.getElementById('IPETH').innerHTML = data[18];
+    document.getElementById('IPWLAN').innerHTML = data[19];
+    document.getElementById('IPWAN').innerHTML = data[20];
+    document.getElementById('OSuptime').innerHTML = data[21];
+    document.getElementById('uptime').innerHTML = data[22];
+    document.getElementById('DCF77').innerHTML = data[23];
+   } else {
+    console.warn(request.status, request.statusText, request.responseText);
+   }
+  setTimeout(requestData, 5000);
+}
+
+function requestData() {
+  request.open("GET","data.txt");
+  request.addEventListener('load', onData);
+  request.send();
+}
+
+requestData();
+</script>
+</div>
+<script type="text/javascript" src="http://danifold.net/bgadjust.js"></script>
+</body>
+</html>
