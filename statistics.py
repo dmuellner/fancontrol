@@ -363,7 +363,7 @@ rect{fill:rgb(180,180,180)}\
 
         if upload:
             print('Upload')
-            retval = subprocess.call('/usr/bin/lftp -c "open ftp.kundencontroller.de; cd www/data/fancontrol/graphs; put {}"'.format(filename), shell=True)
+            retval = subprocess.call('/usr/bin/lftp -c "open ftp.kundencontroller.de; cd www/data/fangraphs; put {}"'.format(filename), shell=True)
             print('Return value: {}'.format(retval))
             if retval != 0:
                 raise RuntimeError('Upload failed')
