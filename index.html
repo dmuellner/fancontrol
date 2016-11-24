@@ -194,6 +194,7 @@ function onGraphButton() {
     document.getElementById('graphbutton').innerHTML = "Hide Graphs";
     document.getElementById("mainwide").scrollIntoView(true)
     showGraphs = 1;
+    onResize();
   }
   else
   {
@@ -205,6 +206,7 @@ function leaveOverlay() {
   document.getElementById('mainwide').style.display = "none";
   document.getElementById('graphbutton').innerHTML = "Show Graphs";
   showGraphs = 0;
+  onResize();
 }
 
 function prevDay() {
