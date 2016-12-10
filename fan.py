@@ -100,6 +100,11 @@ class Fan(Component):
                                    'Permanent ventilation: warm and dry outside.')
             return True
 
+        if S1Data.T < 10:
+            self.messageboard.post('FanComment',
+                                   'Low room temperature.')
+            return False
+
         offSeconds = expm1((15.0 - S2Data.T) / 6.0) * 20 * 60
         if offSeconds < 60:
             return True
