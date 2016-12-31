@@ -35,7 +35,13 @@ def get_ip_address(ifname='wlan0'):
 
 def get_wan_ip():
     try:
-        return requests.get('http://v4.ident.me', timeout=1).text
+        r = requests.get('http://whatismyip.akamai.com', timeout=1, stream=True)
+        # Validate the result: a plain text ip address.
+        ip = r.raw.read(15)
+        for c in ip:
+            if not c in '0123456789.':
+                return 'Error'
+        return ip
     except:
         return 'Error'
 
