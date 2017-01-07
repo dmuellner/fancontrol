@@ -351,22 +351,27 @@ rect{fill:rgb(180,180,180)}\
         plot(SE, g2, data2[:,1], maxT, minT, 'magenta')
 
         ET = etree.ElementTree(svg)
+        filename = 'fancontrol_{year:04}-{month:02}-{day:02}.svg'.format(
+            year=year, month=month, day=day)
         if upload:
             dirname = tempfile.mkdtemp()
-        else:
-            dirname = 'graphs'
-        filename = os.path.join(dirname, 'fancontrol_{year:04}-{month:02}-{day:02}.svg'.format(
-            year=year,
-            month=month,
-            day=day))
-        ET.write(filename, pretty_print=False)
-
-        if upload:
+            tempfilename = 'fancontrol.svg.tmp'
+            tempfilepath = os.path.join(dirname, tempfilename)
+            ET.write(tempfilepath, pretty_print=False)
             print('Upload')
-            retval = subprocess.call('/usr/bin/lftp -c "open ftp.kundencontroller.de; cd www/data/fangraphs; put {}"'.format(filename), shell=True)
+            retval = subprocess.call(
+                '/usr/bin/lftp -c "open ftp.kundencontroller.de; '
+                'cd www/data/fangraphs; '
+                'put {}; '
+                'mv {} {}"'
+                .format(tempfilepath, tempfilename, filename), shell=True)
             print('Return value: {}'.format(retval))
             if retval != 0:
                 raise RuntimeError('Upload failed')
+        else:
+            dirname = 'graphs'
+            filepath = os.path.join(dirname, filename)
+            ET.write(filepath, pretty_print=False)
     except:
         print('Error!')
         raise
