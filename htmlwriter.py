@@ -59,6 +59,9 @@ def CSSstyle(x):
     c.tau = '' if x.tau==x.tau else 'color:red'
     return c
 
+def prettyPrint(number):
+    return '{:2.1f}'.format(number).replace('-', u'−')
+
 class PageGenerator:
     def __init__(self):
         self.statustxt = 'Status: Not set.'
@@ -151,10 +154,10 @@ td.r {{text-align:right;}}
       Relative humidity in %
     </td>
     <td class="c" style="{S1Color.rH}">
-      {S1.rH:2.1f}
+      {S1rH}
     </td>
     <td class="c" style="{S2Color.rH}">
-      {S2.rH:2.1f}
+      {S2rH}
     </td>
   </tr>
   <tr>
@@ -162,10 +165,10 @@ td.r {{text-align:right;}}
       Temperature in °C
     </td>
     <td class="c" style="{S1Color.T}">
-      {S1.T:2.1f}
+      {S1T}
     </td>
     <td class="c" style="{S2Color.T}">
-      {S2.T:2.1f}
+      {S2T}
     </td>
   </tr>
   <tr class="bg">
@@ -173,10 +176,10 @@ td.r {{text-align:right;}}
       Dew point in °C
     </td>
     <td class="c" style="{S1Color.tau}">
-      {S1.tau:2.1f}
+      {S1tau}
     </td>
     <td class="c" style="{S2Color.tau}">
-      {S2.tau:2.1f}
+      {S2tau}
     </td>
   </tr>
   <tr>
@@ -225,7 +228,12 @@ td.r {{text-align:right;}}
 '''.
                     format(date=time.strftime("%d.%m.%Y", localtime),
                            time=time.strftime("%H:%M:%S", localtime),
-                           S1=self.S1, S2=self.S2,
+                           S1rH=prettyPrint(self.S1.rH),
+                           S2rH=prettyPrint(self.S2.rH),
+                           S1T=prettyPrint(self.S1.T),
+                           S2T=prettyPrint(self.S2.T),
+                           S1tau=prettyPrint(self.S1.tau),
+                           S2tau=prettyPrint(self.S2.tau),
                            S1Color=CSSstyle(self.S1), S2Color=CSSstyle(self.S2),
                            statustxt = self.statustxt,
                            statusstyle = self.statusstyle,
@@ -248,17 +256,17 @@ td.r {{text-align:right;}}
 {date}
 {time}
 {S1Color.rH}
-{S1.rH:2.1f}
+{S1rH}
 {S2Color.rH}
-{S2.rH:2.1f}
+{S2rH}
 {S1Color.T}
-{S1.T:2.1f}
+{S1T}
 {S2Color.T}
-{S2.T:2.1f}
+{S2T}
 {S1Color.tau}
-{S1.tau:2.1f}
+{S1tau}
 {S2Color.tau}
-{S2.tau:2.1f}
+{S2tau}
 {fanstatestyle}
 {modetxt}{fanstatetxt}
 {statusstyle}
@@ -271,7 +279,12 @@ td.r {{text-align:right;}}
 {lastsync}'''.
                     format(date=time.strftime("%d.%m.%Y", localtime),
                            time=time.strftime("%H:%M:%S", localtime),
-                           S1=self.S1, S2=self.S2,
+                           S1rH=prettyPrint(self.S1.rH),
+                           S2rH=prettyPrint(self.S2.rH),
+                           S1T=prettyPrint(self.S1.T),
+                           S2T=prettyPrint(self.S2.T),
+                           S1tau=prettyPrint(self.S1.tau),
+                           S2tau=prettyPrint(self.S2.tau),
                            S1Color=CSSstyle(self.S1), S2Color=CSSstyle(self.S2),
                            statustxt = self.statustxt,
                            statusstyle = self.statusstyle,

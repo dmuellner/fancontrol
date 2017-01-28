@@ -35,7 +35,7 @@ config = RawConfigParser()
 config.read('fancontrol.cfg')
 
 w, h = 1440, 600 # graph size
-wplus = w + 50   # image size
+wplus = w + 85   # image size
 hplus = h + 75
 
 intervals = [5,10,15,20,25,30,40,50,60,75,100,200,300,600] # divisors of h
@@ -255,9 +255,10 @@ def make_plot(date, upload=False, mark_end=False):
 line{stroke:black;}\
 polyline{stroke-linecap:round;}\
 text,tspan{stroke:none;fill:black;font-family:sans-serif;font-size:13px;}\
-g.ylabel text{dominant-baseline:mathematical;}\
+g.ylabel text{dominant-baseline:mathematical;text-anchor:end;}\
 rect{fill:rgb(180,180,180)}\
-.thin line{stroke-width:.1px}''')
+.thin line{stroke-width:.1px}\
+line.thicker{stroke-width:.25px}''')
 
         defs = etree.SubElement(svg, 'defs')
         SE = etree.SubElement
@@ -292,7 +293,7 @@ rect{fill:rgb(180,180,180)}\
         text = SE(svg, 'text', x="0", y=str(h + 72))
         text.text = 'Time in hours'
 
-        g1 = SE(svg, 'g', transform="translate(4,30)")
+        g1 = SE(svg, 'g', transform="translate(44,30)")
 
         for x1, x2 in fanIntervals:
             SE(g1, 'rect', x=str(x1), y='.5', width=str(x2-x1+1), height=str(h))
@@ -311,6 +312,20 @@ rect{fill:rgb(180,180,180)}\
             text.text = str(i % 24)
 
 
+        SE(g2, 'line', x1="0", y1="0", x2="0", y2=str(h))
+        g9 = SE(g2, 'g', transform="translate(-10,0)")
+        for T in range(minT, maxT+1, 1):
+            y = '{:.2f}'.format(h - (T - minT) / float(maxT - minT) * h).rstrip('0').rstrip('.')
+            use = SE(g9, 'use', y=y)
+            use.set('{http://www.w3.org/1999/xlink}href', "#vtick")
+
+        g10 = SE(g9, 'g', transform="translate(-5,0)")
+        g10.set('class', "ylabel")
+        for T in  range(minT, maxT+1, 1):
+            y = '{:.2f}'.format(h - (T - minT) / float(maxT - minT) * h).rstrip('0').rstrip('.')
+            text = SE(g10, 'text', y=y)
+            text.text = ('' if T>=0 else u'−') + str(abs(T))
+
         g5 = SE(g2, 'g', transform="translate({},0)".format(w))
         SE(g5, 'line', x1="0", y1="0", x2="0", y2=str(h))
 
@@ -320,7 +335,7 @@ rect{fill:rgb(180,180,180)}\
             use = SE(g6, 'use', y=y)
             use.set('{http://www.w3.org/1999/xlink}href', "#vtick")
 
-        g7 = SE(g6, 'g', transform="translate(15,0)")
+        g7 = SE(g6, 'g', transform="translate(40,0)")
         g7.set('class', "ylabel")
         for T in  range(minT, maxT+1, 1):
             y = '{:.2f}'.format(h - (T - minT) / float(maxT - minT) * h).rstrip('0').rstrip('.')
@@ -331,7 +346,10 @@ rect{fill:rgb(180,180,180)}\
         g8.set('class', "thin")
         for T in range(minT, maxT + 1):
             y = '{:.2f}'.format(h - (T - minT) / float(maxT - minT) * h).rstrip('0').rstrip('.')
-            SE(g8, 'line', x1="0", y1=y, x2=str(w), y2=y)
+            l = SE(g8, 'line', x1="0", y1=y, x2=str(w), y2=y)
+            if T % 5 == 0:
+                l.attrib['class'] = 'thicker'
+
         if mark_end:
             l = 0
             for ii in reversed(range(len(data1))):
