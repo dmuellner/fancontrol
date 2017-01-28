@@ -105,7 +105,10 @@ class Fan(Component):
                                    'Low room temperature.')
             return False
 
-        offSeconds = expm1((15.0 - S2Data.T) / 6.0) * 20 * 60
+        #offSeconds = expm1((15.0 - S2Data.T) /  6.0) * 20 * 60
+        offSeconds = expm1((15.0 - S2Data.T) / 10.0) * 45 * 60
+        #offSeconds = expm1((15.0 - S2Data.T) / 12.0) * 60 * 60
+
         if offSeconds < 60:
             return True
         if not (offSeconds <= 86400):
