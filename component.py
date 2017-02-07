@@ -20,6 +20,7 @@ from threading import Lock, Thread
 import logging
 
 from messageboard import messageboard
+from shutdown import shutdown
 
 logger = logging.getLogger('fancontrol')
 
@@ -43,11 +44,9 @@ class ThreadManager:
         logger.info('Shutdown by user request')
         messageboard.post('ExitThread', True)
         for thread in self.workerThreads:
-            print(1, thread)
             thread.stop()
-            print(2, thread)
         print('System shutdown')
-        os.system("systemctl poweroff")
+        shutdown()
 
 threadManager = ThreadManager(messageboard)
 
