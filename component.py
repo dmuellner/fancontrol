@@ -47,7 +47,7 @@ class ThreadManager:
             thread.stop()
             print(2, thread)
         print('System shutdown')
-        os.system("systemctl shutdown")
+        os.system("systemctl poweroff")
 
 threadManager = ThreadManager(messageboard)
 
