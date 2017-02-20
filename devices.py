@@ -80,6 +80,7 @@ class Devices(ComponentWithThread):
     def stop(self):
         ComponentWithThread.stop(self)
         if CLOSE_WINDOW:
+            self.__fanOff()
             self.__closeWindow()
 
     def onDevices(self, message):
