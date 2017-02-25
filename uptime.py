@@ -34,11 +34,11 @@ _f = _uptimefile.file()
 _lock = threading.Lock()
 
 def UptimeAsString():
-    '''Uptime in Sekunden'''
+    '''Uptime in Seconds'''
     with _lock:
         _f.seek(0)
         return _f.read().split()[0]
 
 def Uptime():
-    '''Uptime in Sekunden'''
+    '''Uptime in Seconds'''
     return float(UptimeAsString())

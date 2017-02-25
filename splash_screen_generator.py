@@ -73,4 +73,4 @@ screen.blit(text, textpos)
 
 pygame.display.flip()
 
-pygame.image.save(screen, '/root/fancontrol/endscreen.png')
+pygame.image.save(screen, 'endscreen.png')
