@@ -61,19 +61,6 @@ class Fan(Component):
                 self.lastDecision = -90000
 
     def decideFan(self, uptime):
-        if self.lastOn is not None:
-            remainingVentilationPeriod = ventilation_period - uptime + self.lastOn
-            if remainingVentilationPeriod > 0:
-                self.messageboard.post('FanComment',
-                                       'Remaing ventilation period: {} min.'.format(int(remainingVentilationPeriod / 60.0 + .5)))
-                return True
-            self.lastOn = None
-            self.lastOff = uptime
-        elif uptime - self.lastDecision < 50:
-            return False
-
-        self.lastDecision = uptime
-
         average1 = self.messageboard.ask('Average', 60)
         average10 = self.messageboard.ask('Average', 60 * 10)
 
@@ -93,17 +80,32 @@ class Fan(Component):
         if S1Data.tau - S2Data.tau < 1:
             self.messageboard.post('FanComment',
                                    'High outside dew point.')
+            self.lastDecision = uptime
             return False
 
-        if S1Data.T < S2Data.T:
+        if (self.lastOn is not None or uptime - self.lastDecision > .5 * ventilation_period) \
+           and S1Data.T < S2Data.T:
             self.messageboard.post('FanComment',
                                    'Permanent ventilation: warm and dry outside.')
+            self.lastDecision = uptime
             return True
 
         if S1Data.T < 10:
             self.messageboard.post('FanComment',
                                    'Low room temperature.')
+            self.lastDecision = uptime
             return False
+
+        if self.lastOn is not None:
+            remainingVentilationPeriod = ventilation_period - uptime + self.lastOn
+            if remainingVentilationPeriod > 0:
+                self.messageboard.post('FanComment',
+                                       'Remaing ventilation period: {} min.'.format(int(remainingVentilationPeriod / 60.0 + .5)))
+                return True
+        elif uptime - self.lastDecision < 50:
+            return False
+
+        self.lastDecision = uptime
 
         #offSeconds = expm1((15.0 - S2Data.T) /  6.0) * 20 * 60
         offSeconds = expm1((15.0 - S2Data.T) / 10.0) * 45 * 60
