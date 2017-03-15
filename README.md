@@ -8,13 +8,13 @@ This package is not meant to be used out-of-the-box since it was coded for a uni
 
 The heart of the controller is the message board. All information flow is directed through this module. All other components register here and subscribe to messages or directly query information from other components.
 
-###### Message board
+##### Message board
 * [messageboard.py](messageboard.py): Central message board, can be considered stable.
 
-###### Main module
+##### Main module
 * [control.py](control.py): This is the entry point to the controller. Call this script to start the software. All components are started and stopped from here. Add or remove components according to your own setup.
 
-###### Components
+##### Components
 * [component.py](component.py): Contains the base class for all components. Components react to messages and may either run in the main thread (for non-blocking operations) or have their own worker thread for more computationally intensive tasks.
 * [average.py](average.py): Small component to compute the average of the last measurements over a given period.
 * [dcf77_thread.py](dcf77_thread.py): Component for receiving a DCF77 radio clock signal. Optional.
@@ -26,28 +26,28 @@ The heart of the controller is the message board. All information flow is direct
 * [sensor.py](sensor.py): Component for the measurements (the non hardware-specific part).
 * [status.py](status.py): This component receives information from all other components and generates status information for the built-in display and the web interface.
 
-###### Hardware drivers
+##### Hardware drivers
 * [dcf77_reader.py](dcf77_reader.py): Device driver for the external radio clock module. Implements the DCF77 protocol. Probably only small changes needed to adapt to different receiver hardware.
 * [sht75.py](sht75.py): Hardware-specific part of the sensor component: driver with the bus protocol and readout routines. Use this module for Sensirion sensors or replace for other types of sensors.
 
-###### Configuration
+##### Configuration
 * [fancontrol.cfg](fancontrol.cfg): Part of the configuration is stored here. Note that some specifics are still hard-coded. If needed, the configuration feature could be made more extensive.
 
-###### Helper modules
+##### Helper modules
 * [ip.py](ip.py): Determine the computer's local and public IP addresses.
 * [shutdown.py](shutdown.py): Shut the computer down.
 * [signals_handler.py](signals_handler.py): Handler for Unix signals to allow graceful termination (e.g., close the window before the controller terminates).
 * [uptime.py](uptime.py): Determine the uptime of the computer. All time intervals in the controller software are measured by uptime diffences, except the logging timestamps. Uptime has the advantage that it is never adjusted, so the controller is not confused when the real-time clock (Unix time) is adjusted.
 * [rwlock.py](rwlock.py): Two different reader-writer locks, used by the message board.
 
-###### Data
+##### Data
 * [index.html](index.html): HTML page for the web server. See http://fancontrol.selfhost.eu:8080/.
 * [endscreen.bin](endscreen.bin): End screen and splash screen for the controller. Change these to your own taste. The .bin files are raw bitmaps which are copied directly to the framebuffer device for the display.
 * [endscreen.png](endscreen.png)
 * [startscreen.bin](startscreen.bin)
 * [startscreen.png](startscreen.png)
 
-###### External scripts
+##### External scripts
 The following scripts are not used by [control.py](control.py) and its submodules.
 * [led.py](led.py): Switch the status LED on. See http://danifold.net/fancontrol_setup.html.
 * [startscreen.sh](startscreen.sh): Turn the LED on and display the splash screen.
