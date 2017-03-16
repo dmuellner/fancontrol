@@ -115,6 +115,8 @@ class Fan(Component):
             return True
         if not (offSeconds <= 86400):
             offSeconds = 86400
+        if self.lastOff is None:
+            self.lastOff = uptime
         remainingWaitPeriod = max(0, offSeconds - uptime + self.lastOff)
         self.messageboard.post('FanComment',
                                'Wait period: {} min ({} min remaining).'.
