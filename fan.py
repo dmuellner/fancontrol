@@ -25,6 +25,7 @@ import logging
 from math import expm1
 
 from component import Component
+from uptime import Uptime
 
 DEBUG = False
 
@@ -37,13 +38,11 @@ ventilation_period = config.getfloat('fan', 'ventilation_period')
 class Fan(Component):
     def __init__(self):
         Component.__init__(self, 'fan')
-        self.fanState = False
         self.mode = None
-        self.returnFromManualMode = True
-
-        self.lastOn = -90000
-        self.lastOff = None
-        self.lastDecision = -90000
+        self.fanState = None
+        self.lastOff = Uptime()
+        self.stayOnUntil = 0
+        self.stayOffUntil = 0
 
     def __enter__(self):
         with self.lock:
@@ -55,12 +54,15 @@ class Fan(Component):
         with self.lock:
             self.mode = message
             if self.mode != 'manual':
-                self.returnFromManualMode = True
-                self.lastOn = None
+                self.fanState = None
                 self.lastOff = -90000
-                self.lastDecision = -90000
+                self.stayOnUntil = 0
+                self.stayOffUntil = 0
 
     def decideFan(self, uptime):
+        if self.stayOffUntil > uptime:
+            return False
+
         average1 = self.messageboard.ask('Average', 60)
         average10 = self.messageboard.ask('Average', 60 * 10)
 
@@ -80,43 +82,35 @@ class Fan(Component):
         if S1Data.tau - S2Data.tau < 1:
             self.messageboard.post('FanComment',
                                    'High outside dew point.')
-            self.lastDecision = uptime
+            self.stayOffUntil = uptime + 20*60
             return False
 
-        if (self.lastOn is not None or uptime - self.lastDecision > .5 * ventilation_period) \
-           and S1Data.T < S2Data.T:
+        if S1Data.T < S2Data.T:
             self.messageboard.post('FanComment',
                                    'Permanent ventilation: warm and dry outside.')
-            self.lastDecision = uptime
+            self.stayOnUntil = uptime + 20*60
             return True
 
         if S1Data.T < 10:
             self.messageboard.post('FanComment',
                                    'Low room temperature.')
-            self.lastDecision = uptime
+            self.stayOffUntil = uptime + 20*60
             return False
 
-        if self.lastOn is not None:
-            remainingVentilationPeriod = ventilation_period - uptime + self.lastOn
-            if remainingVentilationPeriod > 0:
-                self.messageboard.post('FanComment',
-                                       'Remaing ventilation period: {} min.'.format(int(remainingVentilationPeriod / 60.0 + .5)))
-                return True
-        elif uptime - self.lastDecision < 50:
-            return False
-
-        self.lastDecision = uptime
+        remainingVentilationPeriod = self.stayOnUntil - uptime
+        if remainingVentilationPeriod > 0:
+            self.messageboard.post('FanComment',
+                                   'Remaing ventilation period: {} min.'.format(int(remainingVentilationPeriod / 60.0 + .5)))
+            return True
 
         #offSeconds = expm1((15.0 - S2Data.T) /  6.0) * 20 * 60
         offSeconds = expm1((15.0 - S2Data.T) / 10.0) * 45 * 60
         #offSeconds = expm1((15.0 - S2Data.T) / 12.0) * 60 * 60
 
         if offSeconds < 60:
-            return True
+            offSeconds = 0
         if not (offSeconds <= 86400):
             offSeconds = 86400
-        if self.lastOff is None:
-            self.lastOff = uptime
         remainingWaitPeriod = max(0, offSeconds - uptime + self.lastOff)
         self.messageboard.post('FanComment',
                                'Wait period: {} min ({} min remaining).'.
@@ -125,7 +119,10 @@ class Fan(Component):
                                    int(remainingWaitPeriod / 60.0 + .5)))
         self.messageboard.post('WaitPeriod', offSeconds)
         self.messageboard.post('RemainingWaitPeriod', remainingWaitPeriod)
-        return remainingWaitPeriod == 0
+        fanState = remainingWaitPeriod == 0
+        if fanState:
+            self.stayOnUntil = uptime + 20*60
+        return fanState
 
     def onTime(self, message):
         with self.lock:
@@ -134,15 +131,12 @@ class Fan(Component):
             uptime, localtime = message
             action = self.decideFan(uptime)
 
-            if self.returnFromManualMode or action != self.fanState:
-                self.returnFromManualMode = False
+            if action != self.fanState:
                 self.fanState = action
-                logger.info('fan, {}'.format(action))
+                logger.info('fan,{}'.format(action))
                 if action:
                     self.messageboard.post('Devices', 'VentilationOn')
-                    self.lastOn = uptime
                     self.lastOff = None
                 else:
                     self.messageboard.post('Devices', 'VentilationOff')
-                    self.lastOn = None
                     self.lastOff = uptime
