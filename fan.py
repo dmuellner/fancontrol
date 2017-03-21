@@ -25,7 +25,6 @@ import logging
 from math import expm1
 
 from component import Component
-from uptime import Uptime
 
 DEBUG = False
 
@@ -40,7 +39,7 @@ class Fan(Component):
         Component.__init__(self, 'fan')
         self.mode = None
         self.fanState = None
-        self.lastOff = Uptime()
+        self.lastOff = None
         self.stayOnUntil = 0
         self.stayOffUntil = 0
 
@@ -111,7 +110,10 @@ class Fan(Component):
             offSeconds = 0
         if not (offSeconds <= 86400):
             offSeconds = 86400
-        remainingWaitPeriod = max(0, offSeconds - uptime + self.lastOff)
+        if self.lastOff is None:
+            remainingWaitPeriod = offSeconds
+        else:
+            remainingWaitPeriod = max(0, offSeconds - uptime + self.lastOff)
         self.messageboard.post('FanComment',
                                'Wait period: {} min ({} min remaining).'.
                                format(
