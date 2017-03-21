@@ -41,7 +41,7 @@ class DCF77(ComponentWithThread):
             dcf77_time.day, dcf77_time.month, dcf77_time.year, dcf77_time.hour,
             dcf77_time.minute, dcf77_time.tzinfo.tzname(dcf77_time))
         self.messageboard.post('DCF77TimeSync', time_date_str)
-        logger.info('dcf77, {}'.format(time_date_str))
+        logger.info('dcf77,{}'.format(time_date_str))
 
     def run(self):
         def breakEvent():

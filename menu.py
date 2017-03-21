@@ -208,7 +208,7 @@ class MainMenu:
             self.status = 'Schliesse Fenster...'
             self.messageboard.post('Mode', 'manual')
             self.display()
-            logger.info('user, CloseWindow')
+            logger.info('user,CloseWindow')
             self.messageboard.post('Devices', 'StartCloseWindow')
             while not GPIO.input(pin):
                 time.sleep(.1)
@@ -219,7 +219,7 @@ class MainMenu:
             self.status = u'Öffne Fenster...'
             self.messageboard.post('Mode', 'manual')
             self.display()
-            logger.info('user, OpenWindow')
+            logger.info('user,OpenWindow')
             self.messageboard.post('Devices', 'StartOpenWindow')
             while not GPIO.input(pin):
                 time.sleep(.1)
@@ -231,13 +231,13 @@ class MainMenu:
             self.messageboard.post('Devices', 'FanOff')
             self.status = u'Ventilator ist aus.'
             self.display()
-            logger.info('user, FanOff')
+            logger.info('user,FanOff')
         elif self.currentitem == 5:
             self.messageboard.post('Mode', 'manual')
             self.messageboard.post('Devices', 'FanOn')
             self.status = u'Ventilator ist an.'
             self.display()
-            logger.info('user, FanOn')
+            logger.info('user,FanOn')
         elif self.currentitem == 6:
             self.status = u'Herunterfahren...'
             self.display()
