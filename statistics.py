@@ -177,7 +177,7 @@ def read_log(*date):
         offIndex = np.searchsorted(offTimes, onTime)
         if offIndex < len(offTimes):
             offTime = offTimes[offIndex]
-            assert onTime < offTime
+            assert onTime <= offTime, (onTime, offTime)
 
             x1 = int(np.floor((onTime - starttimestamp) / 60.0))
             if x1 >= w: continue
