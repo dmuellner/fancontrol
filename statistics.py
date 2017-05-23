@@ -55,11 +55,12 @@ def nextOffTime(date, starttimestamp):
             assert minute >= w
             if entries[4] == 'fan.py' and entries[5] == 'fan':
                 if entries[6] == 'True':
-                    raise ValueError()
+                    return
                 elif entries[6] == 'False':
                     return timestamp
             elif entries[4] == 'menu.py' and entries[5] == 'user':
-                #print(entries)
+                if entries[6] == 'FanOn':
+                    return
                 if entries[6] == 'FanOff':
                     return timestamp
             elif entries[4] == 'control.py' and entries[5] in ('Startup', 'Shutdown'):
@@ -87,7 +88,6 @@ def lastOnTime(date, starttimestamp):
                 elif entries[6] == 'False':
                     lastOnTimestamp = None
             elif entries[4] == 'menu.py' and entries[5] == 'user':
-                #print(entries)
                 if entries[6] == 'FanOn':
                     lastOnTimestamp = timestamp
                 elif entries[6] == 'FanOff':
@@ -156,23 +156,16 @@ def read_log(*date):
     minT = np.nanmin([np.nanmin(data1), np.nanmin(data2)])
     maxT = np.nanmax([np.nanmax(data1), np.nanmax(data2)])
 
-    fanIntervals = []
+    extraOnTime = lastOnTime(date, starttimestamp)
+    if extraOnTime is not None:
+        onTimes.append(extraOntime)
+    extraOffTime = nextOffTime(date, starttimestamp)
+    if extraOffTime is not None:
+        offTimes.append(extraOffTime)
     onTimes.sort()
     offTimes.sort()
 
-    if len(onTimes) == 0 and len(offTimes) == 0:
-        extraOnTime = lastOnTime(date, starttimestamp)
-        if extraOnTime is not None:
-            onTimes = [extraOnTime]
-    if len(onTimes) and (len(offTimes) == 0 or onTimes[-1] >= offTimes[-1]):
-        offTimes.append(nextOffTime(date, starttimestamp))
-    if len(offTimes) and (len(onTimes) == 0 or onTimes[0] >= offTimes[0]) and not (len(extraOffTimes) and min(extraOffTimes) <= offTimes[0]):
-        extraOnTime = lastOnTime(date, starttimestamp)
-        assert extraOnTime is not None
-        onTimes = [extraOnTime] + onTimes
-
-    offTimes = np.array(offTimes + extraOffTimes)
-    offTimes.sort()
+    fanIntervals = []
     for onTime in onTimes:
         offIndex = np.searchsorted(offTimes, onTime)
         if offIndex < len(offTimes):
