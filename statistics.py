@@ -158,7 +158,7 @@ def read_log(*date):
 
     extraOnTime = lastOnTime(date, starttimestamp)
     if extraOnTime is not None:
-        onTimes.append(extraOntime)
+        onTimes.append(extraOnTime)
     extraOffTime = nextOffTime(date, starttimestamp)
     if extraOffTime is not None:
         offTimes.append(extraOffTime)
