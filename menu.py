@@ -207,7 +207,7 @@ class MainMenu:
             self.display()
             logger.info('user,Mode:{}'.format(mode))
         elif self.currentitem == 2:
-            self.status = 'Schliesse Fenster...'
+            self.status = 'Schliesse Fenster…'
             self.messageboard.post('Mode', 'manual')
             self.display()
             logger.info('user,CloseWindow')
@@ -218,7 +218,7 @@ class MainMenu:
             self.status = u'Fensteröffner ist aus.'
             self.display()
         elif self.currentitem == 3:
-            self.status = u'Öffne Fenster...'
+            self.status = u'Öffne Fenster…'
             self.messageboard.post('Mode', 'manual')
             self.display()
             logger.info('user,OpenWindow')
@@ -241,7 +241,7 @@ class MainMenu:
             self.display()
             logger.info('user,FanOn')
         elif self.currentitem == 6:
-            self.status = u'Herunterfahren...'
+            self.status = u'Herunterfahren…'
             self.display()
             self.messageboard.post('Shutdown', True)
 

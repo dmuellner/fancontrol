@@ -28,7 +28,6 @@ C_HTML_ERROR = 'color:red'
 C_HTML_OK = 'color:#007f00'
 C_HTML_ALERT = 'color:#009fff'
 
-
 class Status(Component):
     def __init__(self):
         Component.__init__(self, 'status')

@@ -53,6 +53,7 @@ class Fan(Component):
     def onMode(self, message):
         with self.lock:
             self.mode = message
+            assert self.mode in ('auto', 'manual')
             if self.mode != 'manual':
                 self.fanState = None
                 self.lastOff = -90000
