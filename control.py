@@ -40,7 +40,7 @@ from sensor import Sensor
 from signals_handler import signals_handler
 from status import Status
 from uptime import Uptime, UptimeAsString
-from WLAN import RestartWLAN, CheckNetwork
+from wlan import RestartWLAN, CheckNetwork
 
 config = RawConfigParser()
 config.read('fancontrol.cfg')
