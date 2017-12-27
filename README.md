@@ -29,7 +29,7 @@ The heart of the controller is the message board. All information flow is direct
 * [menu.py](menu.py): Component for the onscreen menus and button controls. The “user interface“ is implemented here.
 * [sensor.py](sensor.py): Component for the measurements (the non hardware-specific part).
 * [status.py](status.py): This component receives information from all other components and generates status information for the built-in display and the web interface.
-* [WALN.py](WLAN.py): Query network status, restart WLAN connection.
+* [WLAN.py](WLAN.py): Query network status, restart WLAN connection.
 
 ##### Hardware drivers
 * [dcf77_reader.py](dcf77_reader.py): Device driver for the external radio clock module. Implements the DCF77 protocol. Probably only small changes needed to adapt to different receiver hardware.
