@@ -4,9 +4,9 @@ Dew point ventilation controller software, written in Python.
 
 See the project home page: http://danifold.net/fancontrol.html.
 
-Copyright © 2016 Daniel Müllner <http://danifold.net>
-All changes from 2017-12-27 on: Copyright © Google Inc. <http://google.com>
-License: GPLv3, https://www.gnu.org/licenses/gpl-3.0.txt
+Copyright © 2016 Daniel Müllner <http://danifold.net>.
+All changes from 2017-12-27 on: Copyright © Google Inc. <http://google.com>.
+License: GPLv3, https://www.gnu.org/licenses/gpl-3.0.txt.
 
 This package is not meant to be used out-of-the-box since it was coded for a unique hardware device. Nevertheless, it is modular and flexible, hence could be useful as a basis for your own controller if you build a similar device to mine.
 
