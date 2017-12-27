@@ -64,6 +64,7 @@ class Sensor(ComponentWithThread):
         self.S1 = sht75.Sensor(clock1, data1)
         self.S2 = sht75.Sensor(clock2, data2)
         self.event = Event()
+        self.lastmeasurement = Uptime()
 
     def __enter__(self):
         self.messageboard.subscribe('Time', self, Sensor.onTime)
@@ -71,7 +72,12 @@ class Sensor(ComponentWithThread):
 
     def onTime(self, message):
         self.uptime, localtime = message
-        if int(self.uptime) % measure_interval == 0:
+        if self.uptime > self.lastmeasurement + 10.5:
+            logger.warning('Interval between measurements > 10.5s: {}, {}.'.
+                           format(self.lastmeasurement, self.uptime))
+        if int(self.uptime) % measure_interval == 0 \
+           or self.uptime > self.lastmeasurement + 10.5:
+            self.lastmeasurement = self.uptime
             self.event.set()
 
     def run(self):

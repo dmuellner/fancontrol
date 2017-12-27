@@ -88,10 +88,13 @@ with Display(), \
             raise exception
         messageboard.post('Time', (Uptime(), time.localtime()))
         time1 = Uptime()
-        if not time1 + 1e-4 >= time0:
-            logger.warning('Error in uptime: {} < {}.'.format(time0, time1))
+        if not time1 >= time0:
+            logger.warning('Error in uptime: {} < {}.'.format(time1, time0))
             time0 = time1
         sleeptime = 1 - time1 + time0
+        if sleeptime <= 0:
+            logger.warning(u'Zero sleep time: {} < {}, Δ={:.1f}s.'.
+                           format(time0, time1, time1-time0))
         while sleeptime > 0:
             time.sleep(sleeptime)
             time1 = Uptime()
@@ -99,6 +102,8 @@ with Display(), \
         if sleeptime > -.1:
             time0 += 1
         else:
+            logger.warning('Sleep longer than expected: {} < {}, Δ={:.1f}s.'.
+                           format(time0, time1, time1-time0))
             time0 = time1
         if not allThreadsAlive():
             messageboard.post('ExitThread', True)
