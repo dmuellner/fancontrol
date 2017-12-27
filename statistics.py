@@ -366,9 +366,9 @@ line.thicker{stroke-width:.25px}''')
         filename = 'fancontrol_{year:04}-{month:02}-{day:02}.svg'.format(
             year=year, month=month, day=day)
         if upload:
-            dirname = tempfile.mkdtemp()
+            tempdirname = tempfile.mkdtemp()
             tempfilename = 'fancontrol.svg.tmp'
-            tempfilepath = os.path.join(dirname, tempfilename)
+            tempfilepath = os.path.join(tempdirname, tempfilename)
             ET.write(tempfilepath, pretty_print=False)
             print('Upload')
             retval = subprocess.call(
