@@ -24,6 +24,7 @@ else:
     from configparser import RawConfigParser
 import datetime
 import logging
+import psutil
 import RPi.GPIO as GPIO
 from threading import Lock
 import time
@@ -163,6 +164,7 @@ class MainMenu:
                       u'Öffne Fenster',
                       u'Ventilator aus',
                       u'Ventilator an',
+                      u'Restart WLAN',
                       u'Herunterfahren']
         self.currentitem = 0
         self.firstline = 0
@@ -253,28 +255,48 @@ class MainMenu:
     def leave(self):
         pass
 
+prefix = [(float(1 << e), p) for e, p in ((30, 'G'), (20, 'M'), (10, 'K'))]
+
+def humanBytes(n):
+    for m, p in prefix:
+        if n >= m:
+            return '{:.1f}{}'.format(n / m, p)
+    return "{}B".format(n)
+
+def getAvailableRAM():
+    return humanBytes(psutil.virtual_memory().available)
+
 class InfoScreen:
     progstart = Uptime()
+    displayLines = 7
 
     def __init__(self, messageboard):
         self.messageboard = messageboard
+        self.index = 0
 
     def display(self):
-        self.messageboard.post('Info',
-            (['IP Ethernet/WLAN:'],
-             ['', get_ip_address('eth0')],
-             ['', get_ip_address('wlan0')],
-             ['Bootvorgang vor:'],
-             ['', str(datetime.timedelta(seconds=int(Uptime())))],
-             ['Programmstart vor:'],
-             ['', str(datetime.timedelta(seconds=int(Uptime() - self.progstart)))]
-            ))
+        infolines = (
+            ['IP Ethernet/WLAN:'],
+            ['', get_ip_address('eth0')],
+            ['', get_ip_address('wlan0')],
+            ['Bootvorgang vor:'],
+            ['', str(datetime.timedelta(seconds=int(Uptime())))],
+            ['Programmstart vor:'],
+            ['', str(datetime.timedelta(seconds=int(Uptime() - self.progstart)))],
+            ['Freies RAM:', getAvailableRAM()],
+        )
+        self.index = max(min(self.index, len(infolines) - self.displayLines), 0)
+        self.messageboard.post(
+            'Info',
+            infolines[self.index:self.index + self.displayLines])
 
     def forward(self):
-        pass
+        self.index += 1
+        self.display()
 
     def back(self):
-        pass
+        self.index -= 1
+        self.display()
 
     def select(self, pin):
         pass
