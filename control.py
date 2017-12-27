@@ -40,6 +40,7 @@ from sensor import Sensor
 from signals_handler import signals_handler
 from status import Status
 from uptime import Uptime, UptimeAsString
+from WLAN import RestartWLAN, CheckNetwork
 
 config = RawConfigParser()
 config.read('fancontrol.cfg')
@@ -80,7 +81,9 @@ with Display(), \
      Menu(), \
      Devices(), \
      DCF77(), \
-     Average():
+     Average(), \
+     RestartWLAN(), \
+     CheckNetwork():
     time0 = Uptime()
     while messageboard.query('ExitThread') is None:
         exception = messageboard.query('Exception')

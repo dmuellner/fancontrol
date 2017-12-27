@@ -241,6 +241,11 @@ class MainMenu:
             self.display()
             logger.info('user,FanOn')
         elif self.currentitem == 6:
+            self.status = u'Restart WLAN…'
+            self.display()
+            self.messageboard.post('RestartWLAN', True)
+            self.display()
+        elif self.currentitem == 7:
             self.status = u'Herunterfahren…'
             self.display()
             self.messageboard.post('Shutdown', True)

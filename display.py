@@ -55,6 +55,10 @@ WHITE = (255, 255, 255)
 YELLOW = (255, 255, 140)
 STATUSBG = (230, 230, 230)
 
+icon_offline = pygame.image.load('/usr/share/icons/HighContrast/16x16/status/network-error.png')
+icon_online = pygame.image.load('/usr/share/icons/HighContrast/16x16/status/network-idle.png')
+icon_unknown = pygame.image.load('/usr/share/icons/HighContrast/16x16/status/network-no-route.png')
+
 class Bunch:
     def __init__(self, **kwds):
         self.__dict__.update(kwds)
@@ -187,6 +191,17 @@ class Screen:
         self.linefeed()
         fanstatetext, fanstatecolor = self.get_fanstate()
         self.displaytext(fanstatetext, 'l', fanstatecolor)
+        online = self.messageboard.query('Network')
+        if online is None:
+            icon = icon_unknown
+        elif online:
+            icon = icon_online
+        else:
+            icon = icon_offline
+        iconpos = icon.get_rect()
+        iconpos.top = self.y
+        iconpos.right = self.width
+        self.line.append((icon, iconpos))
         self.linefeed()
         status = self.messageboard.query('Status')
         if status is not None:
