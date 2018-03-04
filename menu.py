@@ -209,7 +209,7 @@ class MainMenu:
             self.display()
             logger.info('user,Mode:{}'.format(mode))
         elif self.currentitem == 2:
-            self.status = 'Schliesse Fenster…'
+            self.status = u'Schliesse Fenster…'
             self.messageboard.post('Mode', 'manual')
             self.display()
             logger.info('user,CloseWindow')
