@@ -41,10 +41,12 @@ hplus = h + 75
 
 intervals = [5,10,15,20,25,30,40,50,60,75,100,200,300,600] # divisors of h
 
+today = datetime.date.today()
+
 def nextOffTime(date, starttimestamp):
     date = date + datetime.timedelta(days=1)
     logfile = config.get('logging', 'logfile')
-    if date != datetime.date.today():
+    if date != today:
         logfile = logfile + date.strftime('.%Y-%m-%d')
 
     if os.path.isfile(logfile):
@@ -53,7 +55,7 @@ def nextOffTime(date, starttimestamp):
             t = time.strptime(entries[0], '%Y-%m-%d %H:%M:%S')
             timestamp = calendar.timegm(t)
             minute = int(np.floor((timestamp - starttimestamp) / 60))
-            assert minute >= w
+            assert minute >= w, (minute, w)
             if entries[4] == 'fan.py' and entries[5] == 'fan':
                 if entries[6] == 'True':
                     return
@@ -71,7 +73,7 @@ def nextOffTime(date, starttimestamp):
 def lastOnTime(date, starttimestamp):
     date = date + datetime.timedelta(days=-1)
     logfile = config.get('logging', 'logfile')
-    if date != datetime.date.today():
+    if date != today:
         logfile = logfile + date.strftime('.%Y-%m-%d')
 
     lastOnTimestamp = None
@@ -100,7 +102,7 @@ def lastOnTime(date, starttimestamp):
 def read_log(*date):
     date = datetime.date(*date)
     logfile = config.get('logging', 'logfile')
-    if date != datetime.date.today():
+    if date != today:
         logfile = logfile + date.strftime('.%Y-%m-%d')
 
     t = date.timetuple()
@@ -151,8 +153,9 @@ def read_log(*date):
                     tau2 = float(tau2)
                     data2[minute] += (T2, tau2)
                     num2[minute] += 1
-    data1 /= num1
-    data2 /= num2
+    # Prevent "RuntimeWarning: invalid value encountered in true_divide"
+    data1 = np.where(num1>0, data1, np.nan) / num1
+    data2 = np.where(num2>0, data2, np.nan) / num2
 
     minT = np.nanmin([np.nanmin(data1), np.nanmin(data2)])
     maxT = np.nanmax([np.nanmax(data1), np.nanmax(data2)])
@@ -396,7 +399,7 @@ if __name__ == "__main__":
     if len(sys.argv)==2:
         if sys.argv[1]=='all':
             startdate = datetime.date(2016,3,16)
-            enddate = datetime.date.today()
+            enddate = today
             dt = datetime.timedelta(days=1)
 
             date = startdate
@@ -407,6 +410,6 @@ if __name__ == "__main__":
         else:
             offset = int(sys.argv[1])
             dt = datetime.timedelta(days=offset)
-            make_plot(datetime.date.today() - dt,
+            make_plot(today - dt,
                       upload=True,
                       mark_end=(offset==0))
